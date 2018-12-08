@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.context.NoSuchMessageException;
 import org.springframework.context.i18n.LocaleContextHolder;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -78,18 +79,13 @@ public class BaseController<S extends IService<M>,M extends Domain> {
         return service.getById(id);
     }
 
-    @GetMapping("/list")
-    protected List<M> getGridColumns(M m){
+    @GetMapping
+    protected List<M> list(M m){
         return service.list(new QueryWrapper<M>(m) );
     }
-//    @GetMapping
-//    protected List<M> getAll(@QueryCondition(domain = Domain.class) Wrapper wrapper){
-//        return service.list(wrapper);
-//    }
 
     /**
      * 根据分页（排序）,条件查询
-     * 根据ext标准实现
      * {
      *  conditions:[{property:"",operate:"",value:""}]
      *  page: 1
@@ -100,21 +96,29 @@ public class BaseController<S extends IService<M>,M extends Domain> {
      * @param wrapper
      * @return
      */
-    @GetMapping
+    @GetMapping("/pager")
     protected IPage<M> getPage(@QueryPage Page<M> page, @QueryCondition(domain = Domain.class) QueryWrapper<M> wrapper){
         return service.page(page, wrapper);
     }
 
     /**
-     * 保存或修改
-     * 需要注意：
-     *      ext保存提交时需要把id设置为null，否则走的是修改
-     *      修改提交由以前的部分修改为全量提交，具体参考页面
+     * 保存或修改(记得新增时id为null)
+     *  MIME: application/json
      * @param o
      * @return
      */
-    @PostMapping
-    protected boolean save(@RequestBody M o){
+    @PostMapping(consumes = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    protected boolean saveOrUpdate(@RequestBody M o){
+        return service.saveOrUpdate(o);
+    }
+
+    /**
+     * MIME: x-www-form-urlencoded
+     * @param o
+     * @return
+     */
+    @PostMapping(consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+    protected boolean saveOrUpdate2(M o){
         return service.saveOrUpdate(o);
     }
 
@@ -123,8 +127,18 @@ public class BaseController<S extends IService<M>,M extends Domain> {
      * @param o
      * @return
      */
+    @PutMapping
+    protected boolean update(@RequestBody M o,@QueryCondition(domain = Domain.class) QueryWrapper<M> wrapper){
+        return service.update(o,wrapper);
+    }
+
+    /**
+     * 根据主键修改
+     * @param o
+     * @return
+     */
     @PatchMapping
-    protected boolean update(@RequestBody M o){
+    protected boolean patchUpdate(@RequestBody M o){
         return service.updateById(o);
     }
 
