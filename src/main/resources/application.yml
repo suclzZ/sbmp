@@ -1,0 +1,29 @@
+server:
+  port: 8081
+  context-path: /mp
+
+spring:
+  messages:
+    encoding: utf-8
+    basename: i18n.messages
+
+mybatis-plus:
+  mapper-locations: classpath*:com/sucl/sbmp/*/mapper/**Mapper.xml
+  #实体扫描，多个package用逗号或者分号分隔
+  typeAliasesPackage: com.sucl.sbmp.*.entity
+  global-config:
+    refresh: true
+    db-config:
+      db-type: mysql
+#      id-type: uuid
+    configuration:
+      map-underscore-to-camel-case: true
+      cache-enabled: false
+#  config-location: classpath:mybatis-config.xml
+
+mp:
+  datasource:
+    driver-class-name: com.mysql.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/sbmp?useUnicode=true&useSSL=false&characterEncoding=utf8
+    username: sbmp
+    password: 123456
